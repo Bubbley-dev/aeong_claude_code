@@ -1,0 +1,49 @@
+# ─── 민감 정보 ───────────────────────────────────────────
+**/.env
+discord/.env
+notion/.env
+
+# Google Drive OAuth 인증 파일
+drive/token.json
+drive/oauth_client.json
+drive/.oauth_verifier
+drive/drive-key.json
+
+# Claude Code 로컬 설정
+.claude/settings.local.json
+
+# ─── 런타임 / 임시 파일 ───────────────────────────────────
+discord/discord_monitor.pid
+discord/discord_monitor.log
+/tmp/
+
+# ─── 작업 결과물 / 다운로드 파일 ────────────────────────────
+downloads/
+works/*.xlsx
+works/*.xls
+works/*.pdf
+works/*.pptx
+works/*.docx
+works/*_ref.*
+works/*_output.*
+works/*_temp.*
+works/make_*_temp.py
+
+# ─── Python 캐시 ──────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+
+# ─── 심볼릭 링크 (로컬 환경 의존) ────────────────────────────
+htdocs
+
+# ─── 기타 ────────────────────────────────────────────────
+*.log
+*.pid
+.DS_Store
+Thumbs.db

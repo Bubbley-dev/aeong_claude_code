@@ -2,6 +2,69 @@
 
 ---
 
+## ⚡ 최신 인수인계 (2026-04-07 기준)
+
+**시스템 상태**
+- Discord 봇: `discord/discord_monitor.py` (nohup 백그라운드). 재시작 → `kill $(cat discord/discord_monitor.pid); rm -f discord/discord_monitor.pid; nohup python3 discord/discord_monitor.py > discord/discord_monitor.log 2>&1 &`
+- tmux 세션: `aeong`. Claude Code는 이 세션 안에서만 실행.
+- Git: `https://github.com/Bubbley-dev/aeong_claude_code.git` (master) 연결됨.
+- Drive 민감파일 백업: `Claude_secrets` 폴더 (ID: `1cyQ6LRbY3OxPMyJ6s6Fx2QlrBcu2d58K`)
+
+**반드시 알아야 할 봇 동작 원리**
+- 완료 알림: `; touch /tmp/aeong_fin` 을 명령 끝에 붙여야 Discord 완료 알림 전송됨
+- 권한 1/2/3 입력: Claude ink UI는 숫자 직접 입력 불가 → arrow key 방식 (`Enter` / `Down Enter` / `Down Down Enter`)
+- 반복 알림 방지: boolean 플래그 방식 (`permission_alerted`, `yn_alerted`)
+
+**미해결 이슈**
+- `notion_client.py` → `notify_discord()` HTTP 403. Discord 웹훅 URL 만료 추정. 재발급 필요.
+
+**Notion DB ID**
+- 업무지시: `339b59b94dc180dab746c0f9fd1d3a3c`
+- 작업보고: `339b59b94dc180369de0d851b5a222d2`
+- 업무일지: `339b59b94dc180b6b291df0408b9a247`
+- 업무일지 퇴근 시: DB 속성 + 페이지 본문에 4섹션 회고 블록 필수 (`오늘 한 일` / `어려웠던 일` / `앞으로 개선할 점` / `네 마음가짐`)
+
+**Drive**
+- OAuth2 방식 (`drive/token.json`). 만료 시 Windows `drive/oauth_login.bat`으로 재인증.
+- 프로젝트 업로드 폴더 ID: `1TfSX6erKTwCwYEF2BUKKwf3bjF5fvAZ6`
+
+> 상세 인수인계 → `history/work-history_260407.md`
+
+---
+
+## 2026-04-07 — Discord 봇 안정화, 뉴스레터 템플릿 제작, Git 초기화
+
+**Discord 봇(애옹이) 안정화:**
+- 완료 알림 방식 변경: tmux 출력 파싱 → 파일 기반 (`/tmp/aeong_fin`) 감지 방식으로 교체. Claude Code TUI 실행 중에도 완료 신호 확실히 수신
+- 권한 프롬프트 알림 오탐 수정: 화면 내용 비교 방식 → boolean 플래그 방식으로 교체해 반복 알림 제거
+- 권한 선택 키 입력 수정: 숫자 직접 입력 → tmux arrow key 방식(`Enter`, `Down Enter`, `Down Down Enter`)으로 변경 (Claude Code ink UI 대응)
+- 권한 알림 화면 잘림 수정: 줄당 100자 트리밍(`line[:100]`)으로 Urchin 펭귄 제거
+- `proceed` 프롬프트(선택지 2개) 감지 추가: `"1." + "2."` + 승인 키워드 조합으로 확장
+- `!출근/!퇴근/!지시/!help` 명령어 복구 (리팩터링 중 누락됐던 것)
+
+**블로그 콘텐츠 일정 엑셀 정리 (Notion 업무지시):**
+- Drive에서 `blog_content_schedule.xlsx` 다운로드 (OAuth2 방식)
+- 36개 항목 읽어 BLOG 템플릿 형식으로 변환 → `blog_content_schedule_output.xlsx` 생성
+- Drive 업로드: `2026_블로그_콘텐츠정리_260407_완성.xlsx` (ID: `1qtbGKRGnCeqwJoGBjCJTdRRKVCSt2yaq`)
+- Notion 작업보고 DB 기록 완료
+
+**뉴스레터 HTML 템플릿 제작 (Notion 업무지시):**
+- Drive에서 참조 HTML (`newsletter_ref.html`, Jobkorea HReka 뉴스레터 544줄) 다운로드
+- 8개 섹션 구조 분석: 헤더/배너/소개텍스트/미리보기테이블/큐레이션A(2개)/인사이트B(3개)/CTA섹션C/피드백/푸터
+- 모든 콘텐츠를 `[placeholder]`로 교체, 수정 가능 영역에 `<!-- ✏️ [수정가능] -->` 주석 추가
+- `works/newsletter_template.html` 생성 → Drive 업로드 (ID: `1SkMsdg0XHSd5kRtw1JW8aJ9Ut9HYbbDP`)
+- Notion 작업 완료 처리 + 작업보고 DB 기록
+
+**Git 초기화 및 민감 파일 Drive 백업:**
+- `.gitignore` 작성: `.env`, `token.json`, `oauth_client.json`, `downloads/`, `works/` 결과물, `htdocs` 심볼릭 링크 등 제외
+- `git init` + 초기 커밋 (22파일)
+- Drive `Claude_secrets` 폴더 생성 (ID: `1cyQ6LRbY3OxPMyJ6s6Fx2QlrBcu2d58K`): `discord.env`, `notion.env`, `drive_token.json`, `drive_oauth_client.json` 백업
+- Notion 작업보고 DB 기록
+
+관련 파일: `discord/discord_monitor.py`, `works/newsletter_template.html`, `works/blog_content_schedule_output.xlsx`, `.gitignore`
+
+---
+
 ## 2026-04-06 (2차) — 하이아쿠아 홈페이지 영문 번역
 
 **작업:** HIAQUA/en 폴더 PHP 파일 번역 완료

@@ -44,17 +44,16 @@ DISCORD_WEBHOOK = os.environ.get("DISCORD_WEBHOOK_URL")
 
 
 def notify_discord(message: str):
-    """Discord 웹훅으로 알림 전송"""
+    """Discord 웹훅으로 알림 전송 (Bot 인증 헤더 없이 직접 POST)"""
     if not DISCORD_WEBHOOK:
         return
     try:
-        data = json.dumps({"content": message}).encode("utf-8")
-        req = urllib.request.Request(
-            DISCORD_WEBHOOK, data=data,
-            headers={"Content-Type": "application/json"},
-            method="POST"
+        r = requests.post(
+            DISCORD_WEBHOOK,
+            json={"content": message},
+            timeout=5
         )
-        urllib.request.urlopen(req, timeout=5)
+        r.raise_for_status()
     except Exception as e:
         print(f"[Discord] 알림 전송 실패: {e}")
 

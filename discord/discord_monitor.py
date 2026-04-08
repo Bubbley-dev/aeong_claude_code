@@ -132,11 +132,11 @@ async def handle_command(content):
     elif not content.startswith("!"):
         # 작은따옴표 이스케이프 처리
         escaped = content.replace("'", "'\\''")
-        target_cmd = f"claude -p -c '{escaped}' --output-format text -y"
+        target_cmd = f"claude -p -c '{escaped}' --output-format text"
 
     if target_cmd:
         try:
-            full_cmd = f"cd {WORK_DIR} && {target_cmd}; touch {FIN_FLAG}"
+            full_cmd = f"(cd {WORK_DIR} && {target_cmd}); touch {FIN_FLAG}"
             # shell=True 없이 리스트 형태로 전달 → 쉘 파싱 에러 원천 차단
             subprocess.run(['tmux', 'send-keys', '-t', 'aeong', full_cmd, 'C-m'], check=True)
             return f"🚀 작업을 시작한다냥! 완료 알림을 기다려달라냥.\n명령: `{content[:80]}`"

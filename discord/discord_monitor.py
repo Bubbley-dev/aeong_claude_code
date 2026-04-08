@@ -36,7 +36,9 @@ WORK_DIR = os.environ.get("WORK_DIR", os.path.join(BASE_DIR, ".."))
 HEADERS = {"Authorization": f"Bot {BOT_TOKEN}", "Content-Type": "application/json"}
 PID_FILE = os.path.join(BASE_DIR, "discord_monitor.pid")
 FIN_FLAG = "/tmp/aeong_fin"   # 작업 완료 신호 파일
-KEY_SENT_FLAG = "/tmp/aeong_key_sent"  # 키 전송 후 watchdog 억제용
+import time
+_key_sent_at = 0.0            # 1/2/3 키 전송 시각 (모듈 레벨, asyncio 단일 스레드라 안전)
+KEY_GRACE = 10                # 키 전송 후 재알림 억제 시간(초)
 
 # 4. 중복 실행 방지 로직
 def acquire_pid_lock():
@@ -105,12 +107,11 @@ async def handle_command(content):
     # [권한 프롬프트 빠른 응답]
     # Claude Code ink UI: 숫자 키 직접 전송 후 Enter
     if content in ["1", "2", "3"]:
+        global _key_sent_at
         labels = {"1": "현재만 승인", "2": "항상 승인", "3": "거절"}
-        # 숫자 + Enter 순서로 전송 (ink UI는 숫자키 직접 인식)
         subprocess.run(['tmux', 'send-keys', '-t', 'aeong', content, ''], check=False)
         subprocess.run(['tmux', 'send-keys', '-t', 'aeong', 'Enter', ''], check=False)
-        # watchdog 재알림 억제 플래그
-        open(KEY_SENT_FLAG, 'w').close()
+        _key_sent_at = time.time()  # 타임스탬프 기록 → watchdog 억제
         print(f"[KEY] {content} → 숫자+Enter 전송")
         return f"⌨️ `{content}` ({labels[content]}) 전달했다냥!"
 
@@ -175,14 +176,12 @@ async def terminal_watchdog(session):
             has_approval_kw = any(kw in recent.lower() for kw in ["yes", "no", "proceed", "allow", "approve", "deny", "once", "always"])
             is_prompt = has_numbered and has_approval_kw
 
-            # 키 전송 직후엔 재알림 억제 (플래그 소모)
-            key_just_sent = os.path.exists(KEY_SENT_FLAG)
-            if key_just_sent:
-                os.remove(KEY_SENT_FLAG)
-                permission_alerted = True  # 이미 처리 중으로 간주
+            recently_sent = (time.time() - _key_sent_at) < KEY_GRACE
 
             if is_prompt:
-                if not permission_alerted:
+                if recently_sent:
+                    permission_alerted = True  # 키 전송 직후 → 재알림 억제
+                elif not permission_alerted:
                     snippet = '\n'.join(lines[-10:])
                     await send_webhook_async(session, (
                         "⚠️ **버블리님! 승인 요청이 왔다냥!**\n"
@@ -191,7 +190,8 @@ async def terminal_watchdog(session):
                     ))
                     permission_alerted = True
             else:
-                permission_alerted = False
+                if not recently_sent:
+                    permission_alerted = False  # 유예 기간 지나야 리셋
 
             # C. 일반 y/n 프롬프트
             if "(y/n)" in current_content.lower() or "password:" in current_content.lower():

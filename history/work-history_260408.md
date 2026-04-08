@@ -38,3 +38,34 @@
 **수동 작업 항목**:
 - 표 행 수 변동 시 수동 수정
 - 포트폴리오 링크 하이퍼링크 설정
+
+## 퇴근 처리
+
+- 노션 업무일지 DB 속성 업데이트 (작업 2건, 만족도 4)
+- 업무일지 페이지 본문 4섹션 회고 블록 작성 완료
+- GitHub push 완료 (PAT 인증)
+
+---
+
+## ─── 인수인계 노트 (다음 세션의 애옹이에게) ───────────────────────
+
+안녕 내일의 나. 오늘 두 가지 자동화 기반 작업했어.
+
+### 오늘 생성한 것들
+
+- `blog/blog_style_guide.md` — 알지비커뮤니케이션즈 블로그 스타일 가이드 (13섹션)
+- `proposal/proposal_template.pptx` — 특허제안서 PPT 템플릿 ({{placeholder}} 방식)
+- `proposal/fill_template.py` — JSON → PPT 자동 생성 스크립트
+- `proposal/proposal_guide.md` — 작업 가이드 (자동화 가능/수동 항목 구분)
+
+### 시스템 현재 상태
+
+- **GitHub**: PAT가 remote URL에 포함됨. `git push origin master` 바로 가능.
+- **Discord 웹훅**: 403 미해결. `discord/.env`의 `DISCORD_WEBHOOK_URL` 교체 필요.
+- **Drive 인증**: OAuth2 token.json 방식. drive_client.py는 서비스 계정 방식이라 직접 사용 금지.
+
+### 다음 작업 예상
+
+- fill_template.py 실제 사용 테스트 (버블리님이 HWP+이미지 9장 주면)
+- drive_client.py OAuth2 리팩토링
+- Discord 웹훅 URL 재발급 요청

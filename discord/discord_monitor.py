@@ -35,7 +35,8 @@ WEBHOOK_URL = os.environ.get("DISCORD_WEBHOOK_URL")
 WORK_DIR = os.environ.get("WORK_DIR", os.path.join(BASE_DIR, ".."))
 HEADERS = {"Authorization": f"Bot {BOT_TOKEN}", "Content-Type": "application/json"}
 PID_FILE = os.path.join(BASE_DIR, "discord_monitor.pid")
-FIN_FLAG = "/tmp/aeong_fin"  # 작업 완료 신호 파일
+FIN_FLAG = "/tmp/aeong_fin"   # 작업 완료 신호 파일
+KEY_SENT_FLAG = "/tmp/aeong_key_sent"  # 키 전송 후 watchdog 억제용
 
 # 4. 중복 실행 방지 로직
 def acquire_pid_lock():
@@ -56,13 +57,15 @@ def release_pid_lock():
         os.remove(PID_FILE)
 
 # 5. 디스코드 응답 전송 (비동기 방식)
+# 웹훅은 Bot Authorization 헤더 없이 별도 세션으로 전송
 async def send_webhook_async(session, content):
     if not content:
         return
-    for i in range(0, len(content), 1990):
-        chunk = content[i : i + 1990]
-        async with session.post(WEBHOOK_URL, json={"content": f"```\n{chunk}\n```"}) as resp:
-            await resp.release()
+    async with aiohttp.ClientSession() as wh_session:
+        for i in range(0, len(content), 1990):
+            chunk = content[i : i + 1990]
+            async with wh_session.post(WEBHOOK_URL, json={"content": f"```\n{chunk}\n```"}) as resp:
+                await resp.release()
 
 async def handle_command(content):
     content = content.strip()
@@ -100,25 +103,24 @@ async def handle_command(content):
         return "Error: notion_client 설정 누락이다냥."
 
     # [권한 프롬프트 빠른 응답]
-    # Claude Code ink UI: 1=Enter(기본선택), 2=Down+Enter, 3=Down+Down+Enter
+    # Claude Code ink UI: 숫자 키 직접 전송 후 Enter
     if content in ["1", "2", "3"]:
-        keys = {
-            "1": "Enter",
-            "2": "Down Enter",
-            "3": "Down Down Enter",
-        }
-        subprocess.run(f'tmux send-keys -t aeong:0.0 {keys[content]}', shell=True)
         labels = {"1": "현재만 승인", "2": "항상 승인", "3": "거절"}
-        print(f"[KEY] {content} → {keys[content]}")
+        # 숫자 + Enter 순서로 전송 (ink UI는 숫자키 직접 인식)
+        subprocess.run(['tmux', 'send-keys', '-t', 'aeong', content, ''], check=False)
+        subprocess.run(['tmux', 'send-keys', '-t', 'aeong', 'Enter', ''], check=False)
+        # watchdog 재알림 억제 플래그
+        open(KEY_SENT_FLAG, 'w').close()
+        print(f"[KEY] {content} → 숫자+Enter 전송")
         return f"⌨️ `{content}` ({labels[content]}) 전달했다냥!"
 
     if content.startswith("!입력 "):
         val = content[4:].strip()
-        subprocess.run(f'tmux send-keys -t aeong "{val}" C-m', shell=True)
+        subprocess.run(['tmux', 'send-keys', '-t', 'aeong', val, 'C-m'], check=False)
         return f"⌨️ 터미널에 `{val}` 입력 완료!"
 
     if content == "!화면":
-        res = subprocess.run("tmux capture-pane -p -t aeong", shell=True, capture_output=True, text=True)
+        res = subprocess.run(['tmux', 'capture-pane', '-p', '-t', 'aeong'], capture_output=True, text=True)
         trimmed = [line[:100].rstrip() for line in res.stdout.split('\n')]
         return f"📺 **현재 화면:**\n" + "\n".join(trimmed[-30:])
 
@@ -127,13 +129,16 @@ async def handle_command(content):
     if content.startswith("!run "):
         target_cmd = content[5:].strip()
     elif not content.startswith("!"):
-        target_cmd = f"claude -p -c '{content}' --output-format text -y"
+        # 작은따옴표 이스케이프 처리
+        escaped = content.replace("'", "'\\''")
+        target_cmd = f"claude -p -c '{escaped}' --output-format text -y"
 
     if target_cmd:
         try:
             full_cmd = f"cd {WORK_DIR} && {target_cmd}; touch {FIN_FLAG}"
-            subprocess.run(f'tmux send-keys -t aeong "{full_cmd}" C-m', shell=True, check=True)
-            return f"🚀 작업을 시작한다냥! 완료 알림을 기다려달라냥.\n명령: `{content}`"
+            # shell=True 없이 리스트 형태로 전달 → 쉘 파싱 에러 원천 차단
+            subprocess.run(['tmux', 'send-keys', '-t', 'aeong', full_cmd, 'C-m'], check=True)
+            return f"🚀 작업을 시작한다냥! 완료 알림을 기다려달라냥.\n명령: `{content[:80]}`"
         except Exception as e:
             return f"❌ 실행 에러: {str(e)}"
     return None
@@ -156,7 +161,7 @@ async def terminal_watchdog(session):
                 yn_alerted = False
 
             # 터미널 캡처 (권한 프롬프트 감지용) — 줄당 100자 잘라서 펭귄 제거
-            res = subprocess.run("tmux capture-pane -p -t aeong -S -50", shell=True, capture_output=True, text=True)
+            res = subprocess.run(['tmux', 'capture-pane', '-p', '-t', 'aeong', '-S', '-50'], capture_output=True, text=True)
             lines = [line[:100].rstrip() for line in res.stdout.split('\n')]
             current_content = '\n'.join(lines).strip()
 
@@ -169,6 +174,12 @@ async def terminal_watchdog(session):
             has_numbered = "1." in recent and "2." in recent
             has_approval_kw = any(kw in recent.lower() for kw in ["yes", "no", "proceed", "allow", "approve", "deny", "once", "always"])
             is_prompt = has_numbered and has_approval_kw
+
+            # 키 전송 직후엔 재알림 억제 (플래그 소모)
+            key_just_sent = os.path.exists(KEY_SENT_FLAG)
+            if key_just_sent:
+                os.remove(KEY_SENT_FLAG)
+                permission_alerted = True  # 이미 처리 중으로 간주
 
             if is_prompt:
                 if not permission_alerted:
@@ -212,7 +223,7 @@ async def main():
             last_id = init_resp[0]["id"] if init_resp else None
         
         # 부팅메시지 (버전출력)
-        boot_msg = f"🟢 **애옹이 봇 부팅 완료했다냥!**\n애옹이는 260406 23:00 수정됐다냥\n오늘도 열심히 감시하겠다냥! 🐾"
+        boot_msg = f"🟢 **애옹이 봇 부팅 완료했다냥!**\n애옹이는 260408 23:00 수정됐다냥\n오늘도 열심히 감시하겠다냥! 🐾"
         await send_webhook_async(session, boot_msg)
 
         # [병렬 실행] 터미널 감시 워치독 시작

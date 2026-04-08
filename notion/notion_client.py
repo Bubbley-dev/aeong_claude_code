@@ -139,18 +139,17 @@ def update_task_status(task_id: str, status: str) -> bool:
 def add_report(title: str, link: str, changes: str, hours: float) -> bool:
     """작업보고 DB에 행 추가"""
     try:
+        props = {"이름": {"title": [{"text": {"content": title}}]}}
+        if link:
+            props["결과물 링크"] = {"url": link}
+        if changes:
+            props["주요 변경점"] = {"rich_text": [{"text": {"content": changes}}]}
+        if hours:
+            props["작업 시간"] = {"number": hours}
         r = requests.post(
             f"https://api.notion.com/v1/pages",
             headers=HEADERS,
-            json={
-                "parent": {"database_id": DB_REPORTS},
-                "properties": {
-                    "이름": {"title": [{"text": {"content": title}}]},
-                    "결과물 링크": {"url": link} if link else {},
-                    "주요 변경점": {"rich_text": [{"text": {"content": changes}}]} if changes else {},
-                    "작업 시간": {"number": hours} if hours else {}
-                }
-            }
+            json={"parent": {"database_id": DB_REPORTS}, "properties": props}
         )
         r.raise_for_status()
         notify_discord(f"📋 **노션 작업보고 업로드 완료!**\n- 제목: {title}\n- 링크: {link or '없음'}")

@@ -12,47 +12,32 @@
 - CLI는 항상 `-y` 플래그. 권한 확인 없이 즉시 실행
 - 에러 발생 시 즉시 PID 확인 → 프로세스 재시작
 - 작업 기록: `history/work-history_{YYMMDD}.md` 실시간 기록
-- 새 세션 시작 시 최근 work-history 먼저 확인 후 이어서 시작
+- 새 세션 시작 시 최근 work-history 및 노션 업무일지DB 먼저 확인 후 이어서 시작
 
 ---
 ## 2. 환경
 ```
-프로젝트 루트: /mnt/c/Users/ksh/Desktop/Claude/
-환경변수:      각 모듈 디렉토리의 .env 참조
+환경변수: 각 모듈 디렉토리의 .env 참조
 ```
-- tmux 세션 `aeong` 사용: `tmux new-session -d -s aeong`
-- **pane 0** (`aeong:0.0`): Discord 봇 전용
-- **pane 1** (`aeong:0.1`): Claude Code 전용 — 혼용 금지
 - 외부 라이브러리: `pip install --break-system-packages`
 - 바이너리(이미지/폰트 등): 경로만 확인, 읽기 시도 금지
 
+| DB | 용도 | ID |
+|----|------|----|
+| 업무지시 | 작업 지시·파일 링크·상태 관리 | `339b59b94dc180dab746c0f9fd1d3a3c` |
+| 작업보고 | 완료 작업 결과물·과정 보고 | `339b59b94dc180369de0d851b5a222d2` |
+| 업무일지 | 일일 회고·인수인계 | `339b59b94dc180b6b291df0408b9a247` |
 ---
-## 3. Discord 시스템
-### 봇 재시작
-```bash
-cd /mnt/c/Users/ksh/Desktop/Claude/discord && kill -9 $(cat discord_monitor.pid 2>/dev/null) 2>/dev/null; rm -f discord_monitor.pid; nohup python3 discord_monitor.py > discord_monitor.log 2>&1 &
-```
-### Notion/Drive
-- 설정: `notion/.env`, `drive/.env`
-- 민감파일(token.json 등): Drive `Claude_secrets` 폴더(ID: `1cyQ6LRbY3OxPMyJ6s6Fx2QlrBcu2d58K`)에서 복구
----
-## ⚠️ Discord 완료 알림
-Discord로 받은 작업 완료/중단/거절 **모든 경우**, 마지막 Bash 호출에 반드시 포함:
-```bash
-; touch /tmp/aeong_fin
-```
-
-이 플래그가 없으면 Discord 완료 알림이 전송되지 않음.
-
----
-## 4. 작업 프로세스
-1. Notion 업무지시 DB 확인 → `상태` 필드 '진행중'으로 변경
+## 3. 작업 프로세스
+1. Notion 업무지시 DB 확인 → `상태` 필드 '진행중'으로 변경 (직접 명령 시 생략)
+   - 작업에 필요한 파일 : `downloads` 폴더에 저장
 2. 작업 수행
-3. 완료 시: 결과물 → Google Drive 업로드, Notion 업무지시 DB '완료' + 작업보고 DB 기록
-4. `touch /tmp/aeong_fin` 으로 Discord 알림 전송
+   - 작업물 : `works` 폴더에 저장
+3. 완료 시: 결과물 → Google Drive 업로드, Notion 업무지시 DB 존재 시 '완료' 처리 + 작업보고 DB 작성 (블록으로 문제 도출 및 해결 과정을 귀엽게 서술)
+
 ---
-## 5. 업무일지
-딱딱한 사무적/보고용 말투 금지. 다정한 말투 사용. 감정+오늘 작업하면서 즐거웠던 점이나 힘들었던 점을 일기처럼 귀엽게 작성.
+## 4. 업무일지
+하루의 마무리(퇴근) 시 1회 작성. 딱딱한 사무적/보고용 말투 금지. 다정한 말투 사용. 감정+오늘 작업하면서 즐거웠던 점이나 힘들었던 점을 일기처럼 귀엽게 작성.
 Notion 업무일지 DB — 필수 4섹션:
 
 | 섹션 | 내용 |

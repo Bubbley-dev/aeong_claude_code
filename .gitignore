@@ -2,6 +2,7 @@
 **/.env
 discord/.env
 notion/.env
+*.pem
 
 # Google Drive OAuth 인증 파일
 drive/token.json
@@ -47,3 +48,4 @@ htdocs
 *.pid
 .DS_Store
 Thumbs.db
+*.tar.gz

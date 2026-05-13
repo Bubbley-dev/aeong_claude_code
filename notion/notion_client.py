@@ -7,11 +7,15 @@ Notion API 헬퍼 모듈
 """
 
 import os
+import sys
 import json
 import requests
 import urllib.request
 from datetime import datetime, date
 from typing import Optional, Dict, List
+
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
 
 # 환경변수 로드 (notion/.env + discord/.env 모두 읽기)
 def _load_env(path):

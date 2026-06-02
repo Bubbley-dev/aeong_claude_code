@@ -212,6 +212,20 @@
 | 브래킷 시리즈 | `[알지비의 성공 공식] ~`, `[리얼 후기] ~`, `[숫자로 보는 성과] ~` |
 | 서비스 소개 | `모션그래픽 영상 제작, 기업 홍보 영상의 새로운 기준이 되다` |
 
+### 포트폴리오 제목 패턴
+
+`[핵심 가치/특성 서술] | [브랜드명(영문명)] [작업 유형]`
+
+```
+40년의 역사를 5분에 담다 | 유니크(UNICK) 기업영상 제작기
+프리미엄 윈도우 필름 브랜드를 온라인에 담다 | 솔라가드 파노라마 홈페이지 제작 사례
+글로벌 바이오 기술을 SNS에 담다 | 진우바이오 카드뉴스 마케팅 제작 사례
+```
+
+- 앞부분은 브랜드/작업의 핵심 가치나 도전과제를 동사형 서술로 표현
+- `담다`, `전달하다`, `풀어내다` 등 행위 동사 활용
+- 브랜드명은 한글명(영문명) 병기 권장
+
 ---
 
 ## 12. 핵심 강조 문구 모음 (재사용 가능)
@@ -231,8 +245,91 @@
 ## 13. 작업물 저장 경로 규칙
 
 - 기본 저장 경로: `blog/번호.[카테고리]브랜드명/` 폴더 하위
-- 예시: `blog/08.[홈페이지]골프존클라우드/blog_post.md`
+- 초안(MD)과 최종본(HTML) 같은 폴더에 나란히 저장
+- 예시:
+  - `blog/08.[홈페이지]골프존클라우드/blog_post.md` (초안)
+  - `blog/08.[홈페이지]골프존클라우드/blog_post.html` (최종본)
 - 번호는 기존 폴더 순서에 맞춰 부여
+
+### 작업 순서
+1. MD 초안 작성 → 검토·수정
+2. 확정 후 HTML 최종본 변환 저장
+
+---
+
+## 15. HTML 출력 규격
+
+네이버 블로그 에디터 붙여넣기 최적화를 위해 `.html` 파일로 산출한다.
+Chrome에서 열어 Ctrl+A → Ctrl+C → 네이버 에디터 Ctrl+V 방식으로 사용.
+
+### 기본 구조 규칙
+
+| 요소 | HTML 처리 |
+|------|-----------|
+| 전체 정렬 | `text-align: center` |
+| 볼드 키워드 | `<strong>` |
+| 섹션 제목 (Key Copy) | `<blockquote class="title">` — 상하 보더, bold 20px |
+| 고객 인용문 | `<blockquote class="quote">` — 좌측 보더, italic 24px |
+| 이미지 삽입 위치 | `<div class="img-placeholder">` — 파란 점선 박스 |
+| 줄바꿈 | 모바일 기준 20자 내외로 `<br>` 수동 삽입 |
+| 해시태그 | `.hashtags` 클래스, 14px |
+
+### 표준 CSS 템플릿
+
+```html
+<style>
+  body {
+    font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+    font-size: 16px; line-height: 2; color: #333;
+    max-width: 640px; margin: 40px auto; padding: 0 24px;
+    text-align: center;
+  }
+  blockquote.title {
+    border-top: 2px solid #aaa; border-bottom: 2px solid #aaa;
+    border-left: none; border-right: none; background: none;
+    font-size: 20px; font-weight: bold; font-style: normal;
+    line-height: 1.6; margin: 28px auto; padding: 16px 0; color: #222;
+  }
+  blockquote.quote {
+    border-left: 4px solid #bbb; background: #f8f8f8;
+    font-size: 24px; font-style: italic; line-height: 1.7;
+    margin: 20px auto; padding: 14px 24px; color: #555; text-align: center;
+  }
+  .img-placeholder {
+    background: #eef2ff; border: 2px dashed #99aacc;
+    border-radius: 8px; padding: 22px; color: #667;
+    font-size: 14px; margin: 28px auto;
+  }
+  hr { border: none; border-top: 1px solid #e0e0e0; margin: 28px 0; }
+  .hashtags { color: #777; font-size: 14px; line-height: 2.2; }
+  p { margin: 12px 0; }
+  /* 이미지 프롬프트 제공 시 추가 */
+  .prompt-box {
+    display: block; width: 100%; box-sizing: border-box;
+    margin-top: 12px; padding: 10px 12px;
+    font-size: 11px; font-family: 'Courier New', monospace;
+    color: #334; background: #fff;
+    border: 1px solid #b0bddd; border-radius: 5px;
+    resize: none; cursor: pointer; text-align: left; line-height: 1.6;
+  }
+  .prompt-label { font-size: 11px; color: #7788bb; text-align: left; margin-top: 10px; }
+</style>
+```
+
+### 이미지 프롬프트 포함 방법
+이미지 프롬프트를 제공하는 경우, placeholder 안에 `<textarea>` 로 삽입.
+클릭 한 번으로 전체 선택되고, Ctrl+A 전체 복사 시 textarea 내용은 자동 제외됨.
+
+```html
+<div class="img-placeholder">
+  <span>🖼</span>
+  <div class="label">이미지 N 삽입 — 설명</div>
+  <div class="prompt-label">▼ ChatGPT 이미지 프롬프트 (클릭 후 Ctrl+A → Ctrl+C)</div>
+  <textarea class="prompt-box" readonly rows="10" onclick="this.select()">
+[프롬프트 내용]
+  </textarea>
+</div>
+```
 
 ---
 

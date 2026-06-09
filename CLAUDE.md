@@ -47,7 +47,22 @@
 | 마음가짐 | 그날의 감정, 뿌듯함·고충 등을 귀엽게 |
 
 - 말투: 다정하고 귀여운 일기체. 딱딱한 보고 말투 금지
-- **노션 API 호출 시 인코딩 주의: Python 스크립트 사용 시 반드시 `PYTHONIOENCODING=utf-8` 설정 또는 `sys.stdout.reconfigure(encoding='utf-8')` 추가. 터미널 출력 대신 requests/notion-client 라이브러리로 직접 전송**
+- **노션 API 호출 시 인코딩 주의: Python 스크립트 사용 시 반드시 `sys.stdout.reconfigure(encoding='utf-8')` 추가. 터미널 출력 대신 requests 라이브러리로 직접 전송**
+
+### 작업보고 등록 방법
+새 스크립트를 작성하지 말 것. 재사용 스크립트를 수정해서 실행.
+
+| 항목 | 경로 |
+|------|------|
+| 재사용 스크립트 | `notion/add_report.py` |
+| 환경변수 | `notion/.env` (`NOTION_API_TOKEN`) |
+
+**사용법:** `add_report.py` 상단 `# ── 여기만 수정` 구간의 TITLE, TODAY, HARD, IMPROVE, FEELING 변수만 채우고 실행.
+
+### 작업보고 후 메모리·CLAUDE.md 업데이트 제안
+작업보고 등록 완료 후, 작성한 **어려웠던 일**·**앞으로 개선할 점** 내용을 검토해서 메모리나 CLAUDE.md에 반영할 내용이 있으면 버블리님에게 제안할 것.
+
+예: "오늘 ○○ 실수가 있었는데, 메모리 feedback 항목에 추가하거나 CLAUDE.md 규칙에 반영할까요?"
 
 
 ---

@@ -5,20 +5,29 @@ description: 기본구조 블로그글 작성
 
 블로그 포스팅 작성할 거야. 정보는 다음과 같아. : $ARGUMENTS
 
-인트로 > 사진2~3장 > Key Copy > 짧은 설명(2문장 이내) > 사진2~3장 > Key Copy > 짧은 설명(2문장 이내) > 사진2~3장 > Key Copy > 짧은 설명(2문장 이내) > 인사이트(SEO) > 마무리(후킹) 구조로 짜줘.
+인트로 > 사진2~3장 > Key Copy > 설명 > 사진2~3장 > Key Copy > 설명 > 사진2~3장 > Key Copy > 설명 > 인사이트(SEO) > 마무리(후킹) 구조로 작성할 거야.
 
-CLAUDE.md와 blog_style_guide.md를 먼저 꼭 확인해.
+CLAUDE.md, blog/CLAUDE.md를 먼저 꼭 확인해.
+작업 폴더에서 파일을 하나도 찾을 수 없는 경우, 현재 워크스페이스가 최신화된 상태인지 확인하고 보고해.
 
-**출력 형식: 초안 `.md` → 최종본 `.html` 두 단계로 작성.**
-
-1. **MD 초안** 먼저 작성해서 내용·구조 확인
-2. 확정 후 **HTML 최종본** 변환 저장
-   - blog_style_guide.md 13번 섹션의 표준 CSS 템플릿 사용
-   - 최상단에 `<h1>` 포스트 제목 기재
-   - Key Copy → `<blockquote class="title">`, 고객/인용문 → `<blockquote class="quote">`
-   - 이미지 삽입 위치 → `<div class="img-placeholder">` 박스로 표시
-   - 이미지 프롬프트 있는 경우 → placeholder 안에 `<textarea class="prompt-box">` 로 삽입
-   - 본문 전체 가운데 정렬, 모바일 기준 20자 내외 `<br>` 줄바꿈 적용
-   - Chrome에서 열어 Ctrl+A → Ctrl+C → 네이버 에디터 붙여넣기 방식으로 사용
-
-파일을 찾을 수 없는 경우, 현재 워크스페이스가 최신화된 상태인지 확인해.
+1. 파일명 파악 후 작업 순서 계획
+	- 내가 준 정보 및 텍스트 외의 자료 읽기 금지.
+	- 파일명 및 텍스트 자료 토대로 추측.
+	- 작업 단계는 아래 순서에 맞게 계획.
+2. **계획 승인 후** pdf, png, jpg 등 파일 탐색
+	- 파일 누락 및 선별 탐색 금지. 모든 파일을 읽을 것.
+	- 인코딩 등의 문제로 읽을 수 없는 경우 버블리에게 요청.
+	- 이미지가 많더라도 이미 더 많은 내용 중 선별된 것이므로 모두 읽을 필요 있음.
+3. 웹 링크 탐색
+	- 특히 홈페이지의 경우 Chrome에서 직접 열어 모든 페이지의 디자인을 확인.
+4. **MD 초안** 먼저 작성해서 내용·구조 확인
+	- 작성 완료 후 구조, 분량 한번 더 체크.
+	- md 초안 승인 전 html 바로 작성하는 것 금지. 꼭 수정 과정을 거칠 것.
+5. 확정 후 **HTML 최종본** 변환 저장
+	- blog_style_guide.md 13번 섹션의 표준 CSS 템플릿 사용
+	- 최상단에 `<h1>` 포스트 제목 기재
+	- Key Copy → `<blockquote class="title">`, 고객/인용문 → `<blockquote class="quote">`
+	- 이미지 삽입 위치 → `<div class="img-placeholder">` 박스로 표시
+	- 이미지 프롬프트 있는 경우 → placeholder 안에 `<textarea class="prompt-box">` 로 삽입
+	- 본문 전체 가운데 정렬, 모바일 기준 20자 내외 `<br>` 줄바꿈 적용
+	- Chrome에서 열어 Ctrl+A → Ctrl+C → 네이버 에디터 붙여넣기 방식으로 사용

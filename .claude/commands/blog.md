@@ -24,7 +24,7 @@ CLAUDE.md, blog/CLAUDE.md를 먼저 꼭 확인해.
 	- 작성 완료 후 구조, 분량 한번 더 체크.
 	- md 초안 승인 전 html 바로 작성하는 것 금지. 꼭 수정 과정을 거칠 것.
 5. 확정 후 **HTML 최종본** 변환 저장
-	- blog_style_guide.md 13번 섹션의 표준 CSS 템플릿 사용
+	- blog/CLAUDE.md 13번 섹션의 표준 CSS 템플릿 사용
 	- 최상단에 `<h1>` 포스트 제목 기재
 	- Key Copy → `<blockquote class="title">`, 고객/인용문 → `<blockquote class="quote">`
 	- 이미지 삽입 위치 → `<div class="img-placeholder">` 박스로 표시

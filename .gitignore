@@ -1,6 +1,7 @@
 # ─── 민감 정보 ───────────────────────────────────────────
 **/.env
 notion/.env
+notion/add_report.py
 *.pem
 
 # Google Drive OAuth 인증 파일

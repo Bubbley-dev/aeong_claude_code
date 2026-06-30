@@ -20,6 +20,11 @@ drive/drive-key.json
 # ─── 작업 결과물 / 다운로드 파일 ────────────────────────────
 downloads/*
 works/*
+newsletter/
+
+# ─── 세션 임시 도구 ──────────────────────────────────────────
+.claude/launch.json
+.claude/serve_utf8.py
 
 
 # ─── Python 캐시 ──────────────────────────────────────────
@@ -38,3 +43,4 @@ build/
 .DS_Store
 Thumbs.db
 *.tar.gz
+nul
